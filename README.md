@@ -1,7 +1,7 @@
 # Fastly CIDR → AWG-Manager Subscription
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Русская версия](README.ru.md)](README.ru.md)
+[![Русская версия](https://img.shields.io/badge/lang-Русский-blue.svg)](README.ru.md)
 
 Automatically fetch Fastly's public IP ranges and generate a plain-text subscription file compatible with [AWG-Manager](https://github.com/hoaxisr/awg-manager) routing subscriptions.
 

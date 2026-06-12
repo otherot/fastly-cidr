@@ -1,7 +1,7 @@
 # Fastly CIDR → Подписка для AWG-Manager
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![English version](README.md)](README.md)
+[![English version](https://img.shields.io/badge/lang-English-blue.svg)](README.md)
 
 Автоматическая генерация списка CIDR-диапазонов Fastly в формате подписки для [AWG-Manager](https://github.com/hoaxisr/awg-manager).
 
