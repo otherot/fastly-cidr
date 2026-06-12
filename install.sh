@@ -38,21 +38,21 @@ choose() {
     local options=("$@")
     local choice
 
-    echo ""
-    say "${CYAN}${prompt}${NC}"
+    echo "" >&2
+    say "${CYAN}${prompt}${NC}" >&2
     for i in "${!options[@]}"; do
-        echo "      [${i}] ${options[$i]}"
+        echo "      [${i}] ${options[$i]}" >&2
     done
 
     while true; do
-        echo ""
+        echo "" >&2
         read -r -p "  Ваш выбор [${default}]: " choice
         choice="${choice:-$default}"
         if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 0 && choice < ${#options[@]} )); then
             echo "$choice"
             return
         fi
-        warn "Введите число от 0 до $((${#options[@]} - 1))"
+        warn "Введите число от 0 до $((${#options[@]} - 1))" >&2
     done
 }
 
