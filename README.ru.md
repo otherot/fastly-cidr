@@ -21,6 +21,16 @@
 
 ## Быстрая установка
 
+### Установка одной строкой (рекомендуется)
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/otherot/fastly-cidr/main/install.sh)
+```
+
+Команда скачивает и запускает установщик напрямую — клонировать репозиторий не нужно.
+
+### Клонирование и установка
+
 ```bash
 git clone https://github.com/otherot/fastly-cidr.git
 cd fastly-cidr

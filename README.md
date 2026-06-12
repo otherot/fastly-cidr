@@ -21,6 +21,16 @@ The script calls the [Fastly Public IP List API](https://www.fastly.com/document
 
 ## Quick Start
 
+### One-line install (recommended)
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/otherot/fastly-cidr/main/install.sh)
+```
+
+This downloads and runs the installer directly — no clone needed.
+
+### Clone and install
+
 ```bash
 git clone https://github.com/otherot/fastly-cidr.git
 cd fastly-cidr
