@@ -1,77 +1,88 @@
 # Fastly CIDR → AWG-Manager Subscription
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Русская версия](README.ru.md)](README.ru.md)
 
-Генератор CIDR-подписки Fastly для [AWG-Manager](https://github.com/hoaxisr/awg-manager). Автоматически получает актуальные диапазоны IP-адресов Fastly CDN через их [публичное API](https://www.fastly.com/documentation/reference/api/utils/public-ip-list/) и формирует текстовый файл, совместимый с подписками маршрутов AWG-Manager.
+Automatically fetch Fastly's public IP ranges and generate a plain-text subscription file compatible with [AWG-Manager](https://github.com/hoaxisr/awg-manager) routing subscriptions.
 
-## Как это работает
+The script calls the [Fastly Public IP List API](https://www.fastly.com/documentation/reference/api/utils/public-ip-list/), extracts IPv4 and/or IPv6 CIDR ranges, and writes them into a simple text file — one network per line, ready to use with AWG-Manager's route subscriptions or IP routing rules.
 
-1. Скрипт `generate.sh` запрашивает `https://api.fastly.com/public-ip-list`
-2. Извлекает IPv4 и/или IPv6 CIDR-диапазоны
-3. Сохраняет в `fastly.txt` — простой текст, одна сеть на строку
-4. При включённом `AUTO_COMMIT` — коммитит и пушит изменения в GitHub
-5. AWG-Manager подписывается на Raw URL файла и автоматически обновляет маршруты
+**TL;DR:** Subscribe in AWG-Manager to `https://raw.githubusercontent.com/otherot/fastly-cidr/main/fastly.txt` and get Fastly's CIDR ranges automatically updated.
 
-## Быстрая установка
+---
+
+## How It Works
+
+1. `generate.sh` fetches `https://api.fastly.com/public-ip-list`
+2. Extracts IPv4 and/or IPv6 CIDR ranges
+3. Writes them to `fastly.txt` — plain text, one CIDR per line
+4. With `AUTO_COMMIT=1`, commits and pushes changes to GitHub
+5. AWG-Manager subscribes to the Raw URL and auto-updates its route table
+
+## Quick Start
 
 ```bash
-# Клонируйте репозиторий
 git clone https://github.com/otherot/fastly-cidr.git
 cd fastly-cidr
-
-# Запустите установщик
 bash install.sh
 ```
 
-Установщик задаст вопросы:
-- **Период обновления** — каждые 6/12 часов, раз в сутки или раз в неделю
-- **Версии IP** — только IPv4, только IPv6 или обе
-- **Авто-push** — автоматически коммитить и пушить в GitHub
-- **Cron** — добавить задание в crontab
+The installer will ask you:
 
-## Использование без установщика
+| Step | Question | Options |
+|------|----------|---------|
+| 1 | Update period | Every 6h / 12h / daily (recommended) / weekly |
+| 2 | IP versions | IPv4 only / IPv6 only / IPv4+IPv6 (recommended) |
+| 3 | Git auto-push | Automatically commit & push to GitHub? |
+| 4 | Cron setup | Add a crontab entry? |
+
+After completion it runs a test, configures cron if selected, and prints the Raw URL for AWG-Manager.
+
+## Manual Usage (Without Installer)
 
 ```bash
-# Запуск вручную
+# One-shot generation
 IPV4=1 IPV6=1 AUTO_COMMIT=0 bash generate.sh
 
-# Результат в fastly.txt
+# View the result
 head fastly.txt
 ```
 
-### Переменные окружения
+### Environment Variables
 
-| Переменная   | По умолчанию | Описание                                      |
-|-------------|-------------|-----------------------------------------------|
-| `IPV4`      | `1`         | Включить IPv4 диапазоны (`1` — да, `0` — нет) |
-| `IPV6`      | `1`         | Включить IPv6 диапазоны (`1` — да, `0` — нет) |
-| `OUTPUT`    | `./fastly.txt` | Путь к выходному файлу                     |
-| `AUTO_COMMIT` | `0`       | Делать git commit + push при изменениях        |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `IPV4` | `1` | Include IPv4 ranges (`1` = yes, `0` = no) |
+| `IPV6` | `1` | Include IPv6 ranges (`1` = yes, `0` = no) |
+| `OUTPUT` | `./fastly.txt` | Output file path |
+| `AUTO_COMMIT` | `0` | Auto commit & push when content changes (`1` = yes) |
 
-## Подключение в AWG-Manager
+## Using the Subscription in AWG-Manager
 
-1. Откройте веб-интерфейс AWG-Manager
-2. Перейдите во вкладку **«Подписки»**
-3. Нажмите **«Добавить подписку»**
-4. Заполните:
-   - **Имя**: `Fastly CDN`
-   - **URL**: `https://raw.githubusercontent.com/otherot/fastly-cidr/main/fastly.txt`
-5. Сохраните
+### Method 1 — Subscription Tab (Recommended)
 
-AWG-Manager будет автоматически обновлять список согласно внутреннему расписанию.
+1. Open your AWG-Manager web interface
+2. Go to **Subscriptions** tab
+3. Click **Add Subscription**
+4. Fill in:
+   - **Name:** `Fastly CDN`
+   - **URL:** `https://raw.githubusercontent.com/otherot/fastly-cidr/main/fastly.txt`
+5. Save
 
-### Альтернативно — через IP-роутинг
+AWG-Manager will periodically fetch and apply the list. Since the list contains CIDR networks only (no domains), you can reference it in both DNS and IP routing rules.
 
-Можно скопировать содержимое `fastly.txt` и вставить в поле **Subnets** правила IP-маршрутизации (вкладка «Маршрутизация по IP»).
+### Method 2 — IP Routing Tab
 
-## Формат выходного файла
+Copy the contents of `fastly.txt` directly into the **Subnets** field of an IP routing rule.
+
+## Output File Format
 
 ```text
 # Fastly CDN IP ranges
 # Generated: 2026-06-12T03:17:00Z
 # Source:  https://api.fastly.com/public-ip-list
-# IPv4 ranges: 45
-# IPv6 ranges: 12
+# IPv4 ranges: 19
+# IPv6 ranges: 2
 
 23.235.32.0/20
 43.249.72.0/22
@@ -80,22 +91,58 @@ AWG-Manager будет автоматически обновлять списо�
 ...
 ```
 
-Строки, начинающиеся с `#`, игнорируются AWG-Manager — это комментарии с метаинформацией.
+Lines starting with `#` are comments (ignored by AWG-Manager). The actual content is one CIDR per line, combining both IPv4 and IPv6 ranges sorted naturally.
 
-## Зависимости
-
-- `curl` — HTTP-запросы к Fastly API
-- `jq` — парсинг JSON
-- `git` — публикация в GitHub (опционально)
+## Using on a Dedicated Server
 
 ```bash
-# Debian/Ubuntu
+# Clone and install
+git clone https://github.com/otherot/fastly-cidr.git
+cd fastly-cidr
+bash install.sh
+```
+
+During setup the installer can:
+- Add a crontab entry to run on your chosen schedule
+- Auto-commit and push the generated file to GitHub so AWG-Manager always picks up the latest list
+
+### Manual Cron Example
+
+If you prefer to configure cron manually instead of using the installer:
+
+```cron
+# Fetch Fastly CIDR every day at 03:17
+17 3 * * * cd /home/user/fastly-cidr && IPV4=1 IPV6=1 AUTO_COMMIT=1 bash generate.sh >> /home/user/fastly-cidr/cron.log 2>&1
+```
+
+## How to Host Your Own Copy
+
+The generated `fastly.txt` is published in this repository for convenience. If you want to host your own version:
+
+1. Fork the repository
+2. Clone your fork on a server
+3. Run `install.sh` or configure `generate.sh` manually
+4. Set `AUTO_COMMIT=1` so it pushes updates to your fork
+5. Use your fork's Raw URL in AWG-Manager
+
+## Dependencies
+
+- `curl` — HTTP requests to Fastly API
+- `jq` — JSON parsing
+- `git` — GitHub publishing (optional, only needed for auto-commit)
+
+```bash
+# Debian / Ubuntu
 sudo apt install curl jq git
 
 # Alpine
 apk add curl jq git
 ```
 
-## Лицензия
+## License
 
-MIT — используйте как угодно.
+MIT — use it however you like.
+
+---
+
+> **Russian version:** [README.ru.md](README.ru.md)
