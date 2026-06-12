@@ -31,28 +31,28 @@ err()  { echo -e "${RED}[✗]${NC} $*" >&2; }
 
 choose() {
     # choose <prompt> <default> <option1> <option2> ...
-    # Returns selected value via stdout
+    # Sets the global CHOICE_RESULT variable with the selected index
     local prompt="$1"
     local default="$2"
     shift 2
     local options=("$@")
     local choice
 
-    echo "" >&2
-    say "${CYAN}${prompt}${NC}" >&2
+    echo ""
+    say "${CYAN}${prompt}${NC}"
     for i in "${!options[@]}"; do
-        echo "      [${i}] ${options[$i]}" >&2
+        echo "      [${i}] ${options[$i]}"
     done
 
     while true; do
-        echo "" >&2
+        echo ""
         read -r -p "  Ваш выбор [${default}]: " choice
         choice="${choice:-$default}"
         if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 0 && choice < ${#options[@]} )); then
-            echo "$choice"
+            CHOICE_RESULT="$choice"
             return
         fi
-        warn "Введите число от 0 до $((${#options[@]} - 1))" >&2
+        warn "Введите число от 0 до $((${#options[@]} - 1))"
     done
 }
 
@@ -95,29 +95,29 @@ fi
 ok "Все зависимости найдены (curl, jq, git)"
 
 # --- Step 1: Update period --------------------------------------------
-CHOICE=$(choose \
+choose \
     "Шаг 1/4 — Период обновления:" \
     "2" \
     "Каждые 6 часов" \
     "Каждые 12 часов" \
     "Раз в сутки (рекомендуется)" \
-    "Раз в неделю")
+    "Раз в неделю"
 
 PERIODS=("*/6 * * * *" "17 */12 * * *" "17 3 * * *" "17 3 * * 1")
 PERIOD_LABELS=("каждые 6 часов" "каждые 12 часов" "раз в сутки" "раз в неделю")
-CRON_SCHEDULE="${PERIODS[$CHOICE]}"
-PERIOD_LABEL="${PERIOD_LABELS[$CHOICE]}"
+CRON_SCHEDULE="${PERIODS[$CHOICE_RESULT]}"
+PERIOD_LABEL="${PERIOD_LABELS[$CHOICE_RESULT]}"
 ok "Период: ${PERIOD_LABEL}"
 
 # --- Step 2: IP versions ----------------------------------------------
-CHOICE=$(choose \
+choose \
     "Шаг 2/4 — Версии IP:" \
     "2" \
     "Только IPv4" \
     "Только IPv6" \
     "IPv4 + IPv6 (рекомендуется)")
 
-case "$CHOICE" in
+case "$CHOICE_RESULT" in
     0) IPV4=1; IPV6=0; IP_LABEL="только IPv4" ;;
     1) IPV4=0; IPV6=1; IP_LABEL="только IPv6" ;;
     2) IPV4=1; IPV6=1; IP_LABEL="IPv4 + IPv6" ;;
