@@ -1,0 +1,9 @@
+# Local environment config
+.env
+
+# Cron logs
+cron.log
+*.log
+
+# Temporary files
+*.tmp.*
