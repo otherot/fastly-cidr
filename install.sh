@@ -115,7 +115,7 @@ choose \
     "2" \
     "Только IPv4" \
     "Только IPv6" \
-    "IPv4 + IPv6 (рекомендуется)")
+    "IPv4 + IPv6 (рекомендуется)"
 
 case "$CHOICE_RESULT" in
     0) IPV4=1; IPV6=0; IP_LABEL="только IPv4" ;;
